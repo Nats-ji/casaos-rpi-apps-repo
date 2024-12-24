@@ -24,6 +24,10 @@ services:
               source: /DATA/AppData/autobangumi/data
               target: /app/data
 x-casaos:
+    architectures:
+        - amd64
+        - arm
+        - arm64
     author: Nats_ji
     category: Media
     developer: EstrellaXD
