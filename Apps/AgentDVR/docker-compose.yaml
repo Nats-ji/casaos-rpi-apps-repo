@@ -1,0 +1,64 @@
+name: ispyagentdvr
+services:
+    ispyagentdvr:
+        container_name: ispyagentdvr
+        devices:
+            - /dev/dri:/dev/dri
+            - /dev/dma_heap:/dev/dma_heap
+            - /dev/vcsm:/dev/vcsm
+            - /dev/vchiq:/dev/vchiq
+            - /dev/video10:/dev/video10
+            - /dev/video11:/dev/video11
+            - /dev/video12:/dev/video12
+        environment:
+            AGENTDVR_WEBUI_PORT: "8090"
+            PGID: $PGID
+            PUID: $PUID
+            TZ: $TZ
+        image: mekayelanik/ispyagentdvr:latest
+        network_mode: bridge
+        ports:
+            - target: 8090
+              published: "8090"
+              protocol: tcp
+            - target: 3478
+              published: "3478"
+              protocol: udp
+            - target: 50000
+              published: 50000-50100
+              protocol: udp
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: /DATA/AppData/ispyagentdvr/config
+              target: /AgentDVR/Media/XML
+            - type: bind
+              source: /DATA/Media/AgentDVR
+              target: /AgentDVR/Media/WebServerRoot/Media
+            - type: bind
+              source: /DATA/AppData/ispyagentdvr/commands
+              target: /AgentDVR/Commands
+x-casaos:
+    architectures:
+        - amd64
+        - arm
+        - arm64
+    main: ispyagentdvr
+    author: Nats_ji
+    category: Home Automation
+    developer: iSpyConnect
+    icon: https://cdn.jsdelivr.net/gh/Nats-ji/casaos-rpi-apps-repo@main/Apps/AgentDVR/icon.png
+    screenshot_link:
+        - https://cdn.jsdelivr.net/gh/Nats-ji/casaos-rpi-apps-repo@main/Apps/AgentDVR/screenshot-1.jpg
+    index: /
+    is_uncontrolled: false
+    port_map: "8090"
+    scheme: http
+    title:
+        en_us: AgentDVR
+    tagline:
+        en_us: The world's most advanced Video Surveillance System.
+        zh_cn: 世界上最先进的视频监控系统。
+    description:
+        en_us: Welcome to Agent DVR, the worlds most advanced DVR! It runs smoothly as a service, consumes less CPU than iSpy, and offers a user-friendly web interface accessible from anywhere without any port forwarding hassles!
+        zh_cn: 欢迎使用Agent DVR，全球最先进的DVR！它作为服务运行，比iSpy消耗更少的CPU，并提供用户友好的Web界面，无需任何端口转发即可随时访问！

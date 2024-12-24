@@ -1,0 +1,59 @@
+name: frigate
+services:
+    frigate:
+        container_name: frigate
+        privileged: true # this may not be necessary for all setups
+        restart: unless-stopped
+        image: ghcr.io/blakeblackshear/frigate:stable
+        shm_size: "64mb" # update for your cameras based on calculation above
+        devices:
+            - /dev/bus/usb:/dev/bus/usb # Passes the USB Coral, needs to be modified for other versions
+            - /dev/apex_0:/dev/apex_0 # Passes a PCIe Coral, follow driver instructions here https://coral.ai/docs/m2/get-started/#2a-on-linux
+            - /dev/video11:/dev/video11 # For Raspberry Pi 4B
+            - /dev/dri/renderD128:/dev/dri/renderD128 # For intel hwaccel, needs to be updated for your hardware
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+            - /DATA/AppData/frigate/config:/config
+            - /DATA/Media/Frigate:/media/frigate
+            - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+              target: /tmp/cache
+              tmpfs:
+                  size: 500000000
+        ports:
+            - "8971:8971"
+            # - "5000:5000" # Internal unauthenticated access. Expose carefully.
+            - "8554:8554" # RTSP feeds
+            - "8555:8555/tcp" # WebRTC over tcp
+            - "8555:8555/udp" # WebRTC over udp
+        environment:
+            FRIGATE_RTSP_PASSWORD: "password"
+x-casaos:
+    architectures:
+        - amd64
+        - arm
+        - arm64
+    main: frigate
+    author: Nats_ji
+    category: Home Automation
+    developer: Blake Blackshear
+    icon: https://cdn.jsdelivr.net/gh/Nats-ji/casaos-rpi-apps-repo@main/Apps/Frigate/icon.png
+    screenshot_link:
+        - https://cdn.jsdelivr.net/gh/Nats-ji/casaos-rpi-apps-repo@main/Apps/Frigate/screenshot-1.jpg
+    index: /
+    is_uncontrolled: false
+    port_map: "8971"
+    scheme: http
+    title:
+        en_us: Frigate
+    tagline:
+        en_us: A complete and local NVR designed for Home Assistant with AI object detection.
+        zh_cn: 一个为 Home Assistant 设计的完整本地 NVR，支持 AI 对象检测功能。
+    description:
+        en_us: A complete and local NVR designed for Home Assistant with AI object detection. Uses OpenCV and Tensorflow to perform realtime object detection locally for IP cameras. Use of a Google Coral Accelerator is optional, but strongly recommended. CPU detection should only be used for testing purposes. The Coral will outperform even the best CPUs and can process 100+ FPS with very little overhead.
+        zh_cn: 一个为 Home Assistant 设计的完整本地 NVR，支持 AI 对象检测功能。使用 OpenCV 和 Tensorflow 在本地为 IP 摄像机执行实时对象检测。Google Coral 加速器是可选的，但强烈推荐使用。CPU 检测仅应用于测试目的。Coral 的性能远超顶级 CPU，能够以极低的负载处理超过 100 FPS 的视频流。
+    tips:
+        before_install:
+            en_us: |
+                By default, the Raspberry Pi limits the amount of memory available to the GPU. In order to use ffmpeg hardware acceleration, you must increase the available memory by setting gpu_mem to the maximum recommended value in config.txt as described in the [official docs](https://www.raspberrypi.com/documentation/computers/legacy_config_txt.html#gpu_mem).
+            zh_cn: |
+                默认情况下，Raspberry Pi 会限制 GPU 可用的内存量。为了使用 ffmpeg 的硬件加速功能，您需要在 `config.txt` 文件中将 `gpu_mem` 设置为官方文档中推荐的最大值，以增加可用内存。详细说明请参考[官方文档](https://www.raspberrypi.com/documentation/computers/legacy_config_txt.html#gpu_mem)。

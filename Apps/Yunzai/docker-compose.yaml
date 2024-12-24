@@ -1,0 +1,107 @@
+name: yunzai
+services:
+    yunzai:
+        container_name: yunzai
+        depends_on:
+            redis:
+                condition: service_healthy
+                required: true
+            lagrange:
+                condition: service_started
+                required: true
+        hostname: yunzai
+        image: ghcr.io/nats-ji/trss-yunzai-docker:main
+        networks:
+            yunzai: null
+        ports:
+            - target: 2536
+              published: "2536"
+              protocol: tcp
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: /DATA/AppData/yunzai/config
+              target: /app/TRSS-Yunzai/config
+            - type: bind
+              source: /DATA/AppData/yunzai/logs
+              target: /app/TRSS-Yunzai/logs
+            - type: bind
+              source: /DATA/AppData/yunzai/data
+              target: /app/TRSS-Yunzai/data
+            - type: bind
+              source: /DATA/AppData/yunzai/temp
+              target: /app/TRSS-Yunzai/temp
+            - type: bind
+              source: /DATA/AppData/yunzai/plugins
+              target: /app/TRSS-Yunzai/plugins
+    redis:
+        container_name: yunzai-redis
+        hostname: yunzai-redis
+        healthcheck:
+            test:
+                - CMD
+                - redis-cli
+                - PING
+            timeout: 1s
+            interval: 5s
+            start_period: 10s
+        image: redis:alpine
+        networks:
+            yunzai: null
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: /DATA/AppData/yunzai/redis/data
+              target: /data
+            - type: bind
+              source: /DATA/AppData/yunzai/redis/logs
+              target: /logs
+    lagrange:
+        container_name: yunzai-lagrange
+        hostname: yunzai-lagrange
+        image: ghcr.io/lagrangedev/lagrange.onebot:edge
+        networks:
+            yunzai: null
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: /DATA/AppData/yunzai/lagrange
+              target: /app/data
+networks:
+    yunzai:
+        name: yunzai
+x-casaos:
+    architectures:
+        - amd64
+        - arm64
+    main: yunzai
+    author: Nats_ji
+    category: Chat
+    developer: yoimiya-kokomi
+    icon: https://cdn.jsdelivr.net/gh/Nats-ji/casaos-rpi-apps-repo@main/Apps/Yunzai/icon.png
+    screenshot_link:
+        - https://cdn.jsdelivr.net/gh/Nats-ji/casaos-rpi-apps-repo@main/Apps/Yunzai/screenshot-1.jpg
+    hostname: ""
+    index: /guoba
+    port_map: "2536"
+    scheme: http
+    is_uncontrolled: false
+    store_app_id: yunzai
+    title:
+        en_us: Yunzai Bot
+    tagline:
+        zh_cn: 原神QQ群机器人，通过米游社接口，查询原神游戏信息，生成图片返回
+    description:
+        zh_cn: 原神QQ群机器人，通过米游社接口，查询原神游戏信息，生成图片返回。使用TRSS版云崽和lagrange登录。预装了锅巴插件，可以直接使用。
+    tips:
+        before_install:
+            zh_cn: |
+                安装完成后，先编辑/DATA/AppData/yunzai/lagrange/appsettings.json
+                把Sign服务器的地址填入"SignServerUrl"那一项，Sign服务器地址可以从lagrange的TG群里获得
+                然后把"Host", "Port", "Suffix"三项分别改成：
+                ```
+                "Host": "yunzai",
+                "Port": 2536,
+                "Suffix": "/OneBotv11",
+                ```
+                然后重启Yunzai Bot，并在日志里找到二维码扫码登录QQ即可。

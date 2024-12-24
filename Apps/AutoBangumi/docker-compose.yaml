@@ -1,0 +1,58 @@
+name: autobangumi
+services:
+    AutoBangumi:
+        container_name: AutoBangumi
+        dns:
+            - 223.5.5.5
+        environment:
+            PGID: "1000"
+            PUID: "1000"
+            TZ: $TZ
+            UMASK: "022"
+        image: ghcr.io/estrellaxd/auto_bangumi:latest
+        network_mode: bridge
+        ports:
+            - target: 7892
+              published: "7892"
+              protocol: tcp
+        restart: unless-stopped
+        volumes:
+            - type: bind
+              source: /DATA/AppData/autobangumi/config
+              target: /app/config
+            - type: bind
+              source: /DATA/AppData/autobangumi/data
+              target: /app/data
+x-casaos:
+    author: Nats_ji
+    category: Media
+    developer: EstrellaXD
+    icon: https://cdn.jsdelivr.net/gh/Nats-ji/casaos-rpi-apps-repo@main/Apps/AutoBangumi/icon.png
+    screenshot_link:
+        - https://cdn.jsdelivr.net/gh/Nats-ji/casaos-rpi-apps-repo@main/Apps/AutoBangumi/screenshot-1.jpg
+    index: /
+    is_uncontrolled: false
+    port_map: "7892"
+    scheme: http
+    title:
+        en_us: Autobangumi
+    tagline:
+        en_us: Automatically download and orgnize animes for your media server.
+        zh_cn: 自动追番，解放双手。
+    description:
+        en_us: AutoBangumi is a fully automated tool for tracking and downloading anime based on RSS feeds. By simply subscribing to anime series on sites like Mikan Project, you can automatically keep up with your favorite shows. The organized file names and directories are directly recognizable by media library software such as Plex and Jellyfin, eliminating the need for additional scraping.
+        zh_cn: AutoBangumi 是基于 RSS 的全自动追番整理下载工具。只需要在 Mikan Project 等网站上订阅番剧，就可以全自动追番。 并且整理完成的名称和目录可以直接被 Plex、Jellyfin 等媒体库软件识别，无需二次刮削。
+    tips:
+        before_install:
+            en_us: |
+                Default account
+
+                | Username | Password |
+                | -------- | -------- |
+                | admin | adminadmin |
+            zh_cn: |
+                默认账号
+
+                | 用户名 | 密码 |
+                | ----- | ----- |
+                | admin | adminadmin |
