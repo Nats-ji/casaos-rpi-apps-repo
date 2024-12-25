@@ -73,7 +73,6 @@ networks:
 x-casaos:
     architectures:
         - amd64
-        - arm
         - arm64
     main: yunzai
     author: Nats_ji
